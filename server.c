@@ -50,11 +50,14 @@ int main()
         ret = -1;
         goto error;
     }
-    if ((ret = recv(acceptedSock, readBuf, MAX_DATA, 0)) <= 0) {
-        perror("recv");
-        ret = -1;
-    } else
+    while ((ret = recv(acceptedSock, readBuf, MAX_DATA, 0)) > 0) {
         printf("Read %d Bytes: '%s'\n", ret, readBuf);
+        if ((ret = send(acceptedSock, readBuf, sizeof(readBuf), 0)) <= 0) {
+            perror("send");
+            ret = -1;
+            break;
+        }
+    }
 
     close(acceptedSock);
 error:

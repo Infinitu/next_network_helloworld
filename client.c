@@ -16,7 +16,7 @@
 
 #define IP "127.0.0.1"
 #define PORT 3000
-#define WRITE_DATA "Hello World!"
+#define MAX_SIZE 100
 
 int main()
 {
@@ -39,11 +39,20 @@ int main()
         goto error;
     }
 
-    if ((ret = send(clientSock, WRITE_DATA, sizeof(WRITE_DATA), 0)) <= 0) {
-        perror("send");
-        ret = -1;
-    } else
-        printf("Wrote '%s' (%d Bytes)\n", WRITE_DATA, ret);
+    char str[MAX_SIZE];
+    while(gets(str)){
+        if ((ret = send(clientSock, str, MAX_SIZE, 0)) <= 0) {
+            perror("send");
+            ret = -1;
+        } else
+            printf("Wrote '%s' (%d Bytes)\n", str, ret);
+        if((ret = recv(clientSock, str, MAX_SIZE, 0)) <= 0){
+            perror("recv");
+            goto error;
+        } else
+            printf("Echoe '%s' (%d Bytes)\n", str, ret);
+    }
+    
 
 error:
     close(clientSock);
